@@ -1,0 +1,9 @@
+ANSIBLE_DIRECTORY = ./ansible
+ANSIBLE_PLAYBOOK_DIR = ${ANSIBLE_DIRECTORY}/playbooks
+ANSIBLE_OPTS = -f 6 -i ${ANSIBLE_DIRECTORY}/inventory.ini -e "ansible_become_pass=${PASS}"
+
+install_ansible:
+	sudo apt update
+	sudo apt install software-properties-common
+	sudo add-apt-repository --yes --update ppa:ansible/ansible
+	sudo apt install ansible
