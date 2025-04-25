@@ -1,0 +1,307 @@
+### Simple Justfile 
+#!/usr/bin/env just --justfile
+
+# hello is recipe's name
+hello:
+  echo "Hello World!"
+
+###
+
+
+### default recipe
+default: lint build test
+
+# default recipe to display help information
+default:
+  @just --list
+
+# if no default recipe, first recipe will be default
+###
+
+
+
+### aliases
+alias t := test
+alias c := check
+###
+
+
+
+### recipe with parameters
+filter PATTERN:
+   echo "{{PATTERN}}"
+
+# param with default value
+email address='master@example.com':
+   echo "{{address}}"
+
+# param with expression
+test triple=(arch() + "-unknown-unknown"):
+  ./test "{{triple}}"
+
+# variadic param: '+' aceept one or more values
+[doc('Backup files')]
+backup +FILES:
+  scp {{FILES}} me@example.com
+
+# variadic param with *: zero or more values
+commit MESSAGE *FLAGS:
+  git commit {{FLAGS}} -m "{{MESSAGE}}"
+###
+
+
+
+### variables
+version := "0.2.7"
+tardir  := "awesomesauce-" + version
+tarball := tardir + ".tar.gz"
+path := "a" / "b"  # join path
+var1 := '' && 'goodbye'  # ''
+var2 := 'hello' && 'goodbye'  # 'goodbye'
+var3 := '' || 'goodbye'        # 'goodbye'
+var4 := 'hello' || 'goodbye'  # 'hello'
+
+
+test:
+   echo "{{version}}"
+
+# set/override variables from just command line
+#$ just --set version 1.1.0
+###
+
+
+
+### env variables
+# recipe param as env variable with $ sign
+hello $name:
+   echo $name
+###
+
+
+
+### Environment variables for commands
+export RUST_BACKTRACE := "1"
+
+test:
+    # will print a stack trace if it crashes
+    cargo test
+###
+
+
+
+### settings
+set shell := ["zsh", "-cu"] 
+#set shell := ["bun", "exec"] 
+
+set dotenv-required
+
+set dotenv-load := true
+
+serv: 
+   echo "$DATABASE_ADDRESS from .env"
+
+set positional-arguments := true
+foo:
+  echo $0
+  echo $1
+###
+
+
+
+### Recipe dependencies - Before, after and around
+# execution sequence:  a -> b -> c -> d 
+b: a && c d
+
+# execute recipe 'a'  around
+b:
+  echo 'B start!'
+  just a
+  echo 'B end!'
+
+# depend with params by expression
+default: (build "main")
+
+build target:
+  @echo 'Building {{target}}...'
+##
+
+
+
+### backtick - capture output from evaluation
+JAVA_HOME := `jbang jdk home 11`
+#  backtick code block
+stuff := ```
+   foo="hello"
+   echo $foo "world"
+ ```
+
+done BRANCH=`git rev-parse --abbrev-ref HEAD`:
+  git checkout master
+
+sloc:
+    @echo "`wc -l *.c` lines of code"
+
+# backtick works anywhere:  string/variable/params
+###
+
+
+
+### strings
+string-with-tab := "\t"
+string-with-newline := "\n"
+escapes := '\t\n\r\"\\'
+shell-expanded-path := x'~/$FOO/${BAR}'
+
+# this string will evaluate to `foo\nbar\n`
+x := '''
+  foo
+  bar
+'''
+###
+
+
+
+### command annotation 
+hello:
+  @ echo "command will not be echoed"
+  - echo "ignore none-zero exit status and continue"
+
+@hello2:
+  echo "command will not be echoed"
+
+# Invert command exit status by !  - shell feature
+hello3:
+  # if command succeeds(exit status is 0), exit just
+  ! git branch | grep '* master'
+###
+
+
+
+### Just functions
+hello name:
+   echo "{{os()}}"
+   echo "{{uppercase(name)}}"
+
+# function categories
+* System Information
+* Environment Variables
+* Justfile and Justfile Directory
+* String Manipulation
+* Path Manipulation
+
+# String contact:  (key + ":" + value)
+###
+
+
+### command line
+# run recipe
+$ just hello param1
+
+# list recipes in alphab­etical order
+$ just --list
+$ just --summary
+
+# Show full inform­ation about recipe
+just --show test
+
+# select recipes to run intera­ctively
+$ just --choose
+
+# shell completion
+just --comp­letions zsh
+###
+
+
+
+### recipe with other languages
+bash-test:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    hello='Yo'
+    echo "$hello from bash!"
+
+[script("bash")]
+bash-test2:
+    set -euxo pipefail
+    hello='Yo'
+    echo "$hello from bash!"
+###
+
+
+
+### conditional expressions
+# regular expression match
+fo := if "hi" =~ 'h.+' { "match" } else { "mismatch" }
+
+test:
+   if true; then echo 'True!'; fi
+   for file in `ls .`; do echo $file; done
+   while `server-is-dead`; do ping -c 1 server; done
+
+foo bar:
+  echo '{{ if bar == "bar" { "hello" } else { "bye" } }}'
+###
+
+
+
+### github actions
+- uses: extractions/setup-just@v1
+  with:
+    just-version: 1.38.0
+
+
+# private recipees
+test: _test-helper
+  ./bin/test
+
+# ommited from 'just --list'
+_test-helper:
+  ./bin/super-secret-test-helper-stuff
+###
+
+
+
+### attention
+# Each command line is executed by a new shell.
+# If a command line failed, just will exit, \
+# and subsequent command lines will not be executed.
+change-working-dir:
+   cd bar && pwd
+   # multi-line construct - escape newline with slash
+   if true; then \
+        echo 'True!'; \
+   fi
+
+# justfile is case insensitive: Justfile, JUSTFILE etc
+# justfile could be hidden:  '.justfile'
+# Call recipe from sub dir:  `~/app1/target>$ just build`
+###
+
+
+
+### just module/import
+# load bar/justfile, bar/.justfile, bar.just
+mod bar
+
+# include the contents of another justfile
+import 'foo/bar.just'
+#just --unstable bar::hello
+###
+
+
+
+### recipes as shell alias
+for recipe in `just -f ~/.justfile --summary`; do
+  alias $recipe="just -f ~/.justfile -d. $recipe"
+done
+###
+
+
+
+### Recipe with Python venv
+venv:
+  [ -d .venv ] || uv venv
+
+run: venv
+  ./.venv/bin/python3 main.py
+###

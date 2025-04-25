@@ -1,0 +1,57 @@
+# Basic Makefile Structure
+target: prerequisites
+    command
+
+# Example
+build: main.c utils.c
+    gcc -o build main.c utils.c
+
+# Variables
+CC = gcc
+CFLAGS = -Wall -g
+
+build: main.c utils.c
+    $(CC) $(CFLAGS) -o build main.c utils.c
+
+# Phony Targets
+.PHONY: clean
+clean:
+    rm -f build
+
+# Automatic Variables
+# $@ - Target name
+# $< - First prerequisite
+# $^ - All prerequisites
+build: main.c utils.c
+    $(CC) $(CFLAGS) -o $@ $^
+
+# Pattern Rules
+%.o: %.c
+    $(CC) $(CFLAGS) -c $< -o $@
+
+# Wildcards
+SRC = $(wildcard *.c)
+OBJ = $(SRC:.c=.o)
+
+build: $(OBJ)
+    $(CC) $(CFLAGS) -o $@ $^
+
+# Functions
+# Example: Substitution
+SRC = main.c utils.c
+OBJ = $(patsubst %.c, %.o, $(SRC))
+
+# Conditional Statements
+ifeq ($(DEBUG), 1)
+    CFLAGS += -DDEBUG
+endif
+
+# Include Other Makefiles
+include common.mk
+
+# Running Shell Commands
+current_dir:
+    @echo "Current directory: $(shell pwd)"
+
+# Default Target
+.DEFAULT_GOAL := build

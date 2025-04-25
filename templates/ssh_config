@@ -1,0 +1,7 @@
+Host <host>
+	User <user>
+	HostName <ip or domain>
+	ForwardX11Trusted yes
+	ForwardX11 yes
+	IdentityFile ~/.ssh/id_rsa
+	PubKeyAuthentication yes
