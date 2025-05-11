@@ -34,6 +34,10 @@ fi
 # Install Homebrew
 if should_run "Install Homebrew?"; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    echo >> /home/iloudaros/.bashrc
+    echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/iloudaros/.bashrc
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    sudo apt-get install build-essential
 fi
 
 # Install zsh and oh-my-zsh
@@ -55,6 +59,11 @@ fi
 # Install gh
 if should_run "Install GitHub CLI (gh)?"; then
     brew install gh
+fi
+
+# Connect to GitHub
+if should_run "Connect to GitHub?"; then
+    gh auth login
 fi
 
 # Exit message
