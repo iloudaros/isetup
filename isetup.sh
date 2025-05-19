@@ -34,16 +34,10 @@ fi
 # Install Homebrew
 if should_run "Install Homebrew?"; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    echo >> /home/iloudaros/.bashrc
-    echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/iloudaros/.bashrc
+    echo >> /home/$USER/.bashrc
+    echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/$USER/.bashrc
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
     sudo apt-get install build-essential
-fi
-
-# Install zsh and oh-my-zsh
-if should_run "Install zsh and oh-my-zsh?"; then
-    brew install zsh
-    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 fi
 
 # Install Just and make
@@ -64,6 +58,12 @@ fi
 # Connect to GitHub
 if should_run "Connect to GitHub?"; then
     gh auth login
+fi
+
+# Install zsh and oh-my-zsh
+if should_run "Install zsh and oh-my-zsh?"; then
+    brew install zsh
+    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 fi
 
 # Exit message
