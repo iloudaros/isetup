@@ -1,0 +1,61 @@
+set dotenv-load
+
+############ Variables ############
+project_name := "research_0"
+###################################
+
+
+
+
+########### Utilities ##########
+
+################################
+
+
+
+
+
+########## Quick Checks ########
+hi tata:
+    @echo "Hi, {{tata}}, this is the {{project_name}} project"
+
+check_notify:
+    @curl \
+        -d "Testing Notification" \
+        -H "Title: {{project_name}}" \
+        -H "Tags: white_check_mark" \
+        $NOTIFICATION_URL
+        
+################################
+
+
+
+
+
+############# Setup ############
+
+################################
+
+
+
+
+
+########### Exploration ###########
+
+###################################
+
+
+
+
+
+############# Execute ############
+
+##################################
+
+
+
+
+
+############ Experiments ############
+
+#####################################
